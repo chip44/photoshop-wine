@@ -1,4 +1,4 @@
-# <center>Adobe Photoshop CS6 installer for Linux</center>
+# <p align="center">Adobe Photoshop CS6 installer for Linux</p>
 
 This is a shell script for an automatic Photoshop installation.
 
@@ -75,7 +75,7 @@ $ photoshop
 ```
 $ photoshop file.psd
 ```
-xdg-open should also work:
+`xdg-open` should also work:
 ```
 $ xdg-open file.psd
 ```
@@ -111,7 +111,7 @@ Also delete this line from `~/.config/mimeapps.list`:
 - This issue could be already fixed after writing this, so try updating the package first.
 
 ### Tooltips don't disappear from the screen until the program closes!
-- This is a bug with Wine, a workaround is to disable tooltips by going to *Edit > Preferences > Interface* and unchecking *Show Tool Tips*.
+- This is a bug with Wine, a workaround is to disable tooltips by going to *Edit > Preferences > Interface* and unchecking *'Show Tool Tips'*.
 
 
 
