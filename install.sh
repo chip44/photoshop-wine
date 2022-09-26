@@ -197,16 +197,19 @@ Options:
         exit
         ;;
     *)
-        if [ -z "\$1" ]; then
-            continue
-        else
+        if [ -n "\$1" ]; then
             case "\$1" in
-                *.psd) wine start /ProgIDOpen Photoshop.Image.13 "\$1" >/dev/null 2>&1 ;;
-                *.png) wine start /ProgIDOpen pngfile "\$1" >/dev/null 2>&1 ;;
-                *.jpg|*.jpeg) wine start /ProgIDOpen jpegfile "\$1" >/dev/null 2>&1 ;;
+                *.psd) format=Photoshop.Image.13 ;;
+                *.psb) format=Photoshop.PSBFile ;;
+                *.png) format=pngfile ;;
+                *.jpg|*.jpeg|*.jpe) format=jpegfile ;;
+                *.gif) format=giffile ;;
                 *) echo "Unknown file."
-                    photoshop -h ;;
+                    photoshop -h
+                    exit
+                    ;;
             esac
+            wine start /ProgIDOpen \$format "\$1" >/dev/null 2>&1
             exit
         fi
         ;;
