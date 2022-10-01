@@ -74,7 +74,7 @@ done; unset dir
 CHCK "Done"
 
 INFO "Generating Wine prefix... "
-wineboot >/dev/null 2>&1
+wineboot -i >/dev/null 2>&1
 CHCK "Done"
 
 INFO "Setting up font smoothing... "
@@ -139,7 +139,7 @@ CHCK "Done"
 
 INFO "Fixing some weird thing... "
 mkdir -p "$WINEPREFIX/dosdevices/c:/Program Files/Common Files/Adobe/PCF"
-cat << EOT > "$WINEPREFIX/dosdevices/c:/Program Files/Common Files/Adobe/PCF/{74EB3499-8B95-4B5C-96EB-7B342F3FD0C6}.Photoshop-CS6-Win-GM.xml"
+cat << 'EOT' > "$WINEPREFIX/dosdevices/c:/Program Files/Common Files/Adobe/PCF/{74EB3499-8B95-4B5C-96EB-7B342F3FD0C6}.Photoshop-CS6-Win-GM.xml"
 <?xml version="1.0" encoding="utf-8"?>
 <Configuration>
   <Payload adobeCode="{74EB3499-8B95-4B5C-96EB-7B342F3FD0C6}">
@@ -235,21 +235,19 @@ if ! grep -q "image/vnd.adobe.photoshop=photoshop.desktop" "$HOME/.config/mimeap
     echo "image/vnd.adobe.photoshop=photoshop.desktop" >> "$HOME/.config/mimeapps.list"
 fi
 
-cat << EOT > "$RESOURCESPATH/mime.reg"
+for format in pngfile jpegfile giffile ; do
+    cat << EOT > "$RESOURCESPATH/mime-${format}.reg"
 Windows Registry Editor Version 5.00
 
-[HKEY_CLASSES_ROOT\\pngfile\\shell\\open\\command]
+[HKEY_CLASSES_ROOT\\${format}\\shell\\open\\command]
 @="\"Z:${PSPATH}\\\\Photoshop.exe\" \"%1\""
 
-[HKEY_CLASSES_ROOT\\jpegfile\\shell\\open\\command]
-@="\"Z:${PSPATH}\\\\Photoshop.exe\" \"%1\""
-
-[-HKEY_CLASSES_ROOT\\pngfile\\shell\\open\\ddeexec]
-[-HKEY_CLASSES_ROOT\\jpegfile\\shell\\open\\ddeexec]
+[-HKEY_CLASSES_ROOT\\${format}\\shell\\open\\ddeexec]
 
 EOT
-sed -i 's|/|\\\\|g' "$RESOURCESPATH/mime.reg"
-wine regedit "$RESOURCESPATH/mime.reg" >/dev/null 2>&1
+    sed -i 's|/|\\\\|g' "$RESOURCESPATH/mime-${format}.reg"
+    wine regedit "$RESOURCESPATH/mime-${format}.reg" >/dev/null 2>&1
+done; unset format
 CHCK "Done"
 
 INFO "Linking wine folders... "
