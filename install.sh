@@ -33,8 +33,8 @@ ERRO() { printf "\033[0;31m$*\033[0m"; exit 1; }
 gddl() {
     path="$1"
     fileid="$2"
-    html=$(curl -s -c "$RESOURCESPATH/cookie" -L "https://drive.google.com/uc?export=download&id=${fileid}")
-    curl -s -Lb "$RESOURCESPATH/cookie" "https://drive.google.com/uc?export=download&$(echo "$html" | grep -Po '(confirm=[a-zA-Z0-9\-_]+)')&id=${fileid}" -o "$path"
+    html=$(curl -s -c "$RESOURCESPATH/cookie" -L "https://drive.google.com/uc?export=download&id=$fileid")
+    curl -s -Lb "$RESOURCESPATH/cookie" "https://drive.google.com/uc?export=download&$(echo "$html" | grep -Po '(confirm=[a-zA-Z0-9\-_]+)')&id=$fileid" -o "$path"
     rm "$RESOURCESPATH/cookie"
 }
 
@@ -44,9 +44,9 @@ gddl() {
 
 # Confirmation
 if [ "$(ls -A "$BASEDIR" 2>/dev/null)" ]; then
-    WARN "'${BASEDIR}' is not empty."
+    WARN "'$BASEDIR' is not empty."
 else
-    echo "Photoshop will be installed in '${BASEDIR}'."
+    echo "Photoshop will be installed in '$BASEDIR'."
 fi
 read -p "Proceed? [y/N] " REPLY
 case "$REPLY" in
@@ -152,8 +152,8 @@ CHCK "Done"
 INFO "Creating launch script... "
 cat << EOT > "$LAUNCHER"
 #!/bin/sh
-export WINEARCH=${WINEARCH}
-export WINEPREFIX="${WINEPREFIX}"
+export WINEARCH=$WINEARCH
+export WINEPREFIX="$WINEPREFIX"
 
 case "\$1" in
     '--regedit')
@@ -236,17 +236,17 @@ if ! grep -q "image/vnd.adobe.photoshop=photoshop.desktop" "$HOME/.config/mimeap
 fi
 
 for format in pngfile jpegfile giffile ; do
-    cat << EOT > "$RESOURCESPATH/mime-${format}.reg"
+    cat << EOT > "$RESOURCESPATH/mime-$format.reg"
 Windows Registry Editor Version 5.00
 
-[HKEY_CLASSES_ROOT\\${format}\\shell\\open\\command]
-@="\"Z:${PSPATH}\\\\Photoshop.exe\" \"%1\""
+[HKEY_CLASSES_ROOT\\$format\\shell\\open\\command]
+@="\"Z:$PSPATH\\\\Photoshop.exe\" \"%1\""
 
-[-HKEY_CLASSES_ROOT\\${format}\\shell\\open\\ddeexec]
+[-HKEY_CLASSES_ROOT\\$format\\shell\\open\\ddeexec]
 
 EOT
-    sed -i 's|/|\\\\|g' "$RESOURCESPATH/mime-${format}.reg"
-    wine regedit "$RESOURCESPATH/mime-${format}.reg" >/dev/null 2>&1
+    sed -i 's|/|\\\\|g' "$RESOURCESPATH/mime-$format.reg"
+    wine regedit "$RESOURCESPATH/mime-$format.reg" >/dev/null 2>&1
 done; unset format
 CHCK "Done"
 
