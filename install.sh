@@ -240,7 +240,7 @@ if ! grep "[Default Applications]" "$HOME/.config/mimeapps.list" >/dev/null 2>&1
 fi
 
 if ! grep "image/vnd.adobe.photoshop=photoshop.desktop" "$HOME/.config/mimeapps.list" >/dev/null 2>&1; then
-    sed '/[Default Applications]/a image/vnd.adobe.photoshop=photoshop.desktop' "$HOME/.config/mimeapps.list"
+    sed -i '/[Default Applications]/a image/vnd.adobe.photoshop=photoshop.desktop' "$HOME/.config/mimeapps.list"
 fi
 
 for format in pngfile jpegfile giffile ; do
