@@ -4,7 +4,7 @@
 #        Config         #
 #########################
 
-# User folders
+# User
 export BASEDIR="$HOME/.local/share/photoshop-wine"
 export LAUNCHER="$HOME/.local/bin/photoshop"
 export DESKTOPFILE="$HOME/.local/share/applications/photoshop.desktop"
@@ -27,7 +27,7 @@ export LC_ALL=en_US.UTF-8
 INFO() { printf "\033[0;36m$*\033[0m"; sleep 0.1; }
 CHCK() { printf "\033[0;32m$*\033[0m\n"; sleep 0.5; }
 WARN() { printf "\033[0;33m$*\033[0m\n"; }
-ERRO() { printf "\033[0;31m$*\033[0m"; exit 1; }
+ERRO() { printf "\033[0;31m$*\033[0m\n"; exit 1; }
 
 # Download from google drive
 gddl() {
@@ -48,7 +48,7 @@ if [ "$(ls -A "$BASEDIR" 2>/dev/null)" ]; then
 else
     echo "Photoshop will be installed in '$BASEDIR'."
 fi
-read -p "Proceed? [y/N] " REPLY
+read -rp "Proceed? [y/N] " REPLY
 case "$REPLY" in
     y|Y|yes|Yes) continue ;;
     *) exit 0 ;;
@@ -70,6 +70,9 @@ done; unset dep
 INFO "Creating directories... "
 for dir in $BASEDIR $WINEPREFIX $PSPATH $RESOURCESPATH ; do
     mkdir -p "$dir"
+done; unset dir
+for dir in $LAUNCHER $DESKTOPFILE ; do
+    mkdir -p "$(dirname "$dir")"
 done; unset dir
 CHCK "Done"
 
@@ -137,7 +140,7 @@ INFO "Extracting... "
 tar -xzf "$RESOURCESPATH/cs6.tgz" -C "$PSPATH"
 CHCK "Done"
 
-INFO "Fixing some weird thing... "
+INFO "Creating licensing identifier file... "
 mkdir -p "$WINEPREFIX/dosdevices/c:/Program Files/Common Files/Adobe/PCF"
 cat << 'EOT' > "$WINEPREFIX/dosdevices/c:/Program Files/Common Files/Adobe/PCF/{74EB3499-8B95-4B5C-96EB-7B342F3FD0C6}.Photoshop-CS6-Win-GM.xml"
 <?xml version="1.0" encoding="utf-8"?>
@@ -152,6 +155,7 @@ CHCK "Done"
 INFO "Creating launch script... "
 cat << EOT > "$LAUNCHER"
 #!/bin/sh
+
 export WINEARCH=$WINEARCH
 export WINEPREFIX="$WINEPREFIX"
 
@@ -231,8 +235,12 @@ EOT
 CHCK "Done"
 
 INFO "Adding mime associations... "
-if ! grep -q "image/vnd.adobe.photoshop=photoshop.desktop" "$HOME/.config/mimeapps.list"; then
-    echo "image/vnd.adobe.photoshop=photoshop.desktop" >> "$HOME/.config/mimeapps.list"
+if ! grep "[Default Applications]" "$HOME/.config/mimeapps.list" >/dev/null 2>&1; then
+    echo "[Default Applications]" >> "$HOME/.config/mimeapps.list"
+fi
+
+if ! grep "image/vnd.adobe.photoshop=photoshop.desktop" "$HOME/.config/mimeapps.list" >/dev/null 2>&1; then
+    sed '/[Default Applications]/a image/vnd.adobe.photoshop=photoshop.desktop' "$HOME/.config/mimeapps.list"
 fi
 
 for format in pngfile jpegfile giffile ; do
@@ -253,7 +261,7 @@ CHCK "Done"
 INFO "Linking wine folders... "
 
 # Unlink Wine folders from user folders
-unlinkdir() { rm -r "$1"; mkdir -p "$1"; }
+unlinkdir() { rm -rf "$1"; mkdir -p "$1"; }
 for link in Desktop Documents Downloads Music Pictures Videos AppData/Roaming/Microsoft/Windows/Templates ; do
     unlinkdir "$WINEPREFIX/drive_c/users/$USER/$link"
 done; unset link
