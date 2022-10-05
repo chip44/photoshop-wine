@@ -113,6 +113,11 @@ Also delete this line from `~/.config/mimeapps.list`:
 ### Tooltips don't disappear from the screen until the program closes!
 - This is a bug with Wine, a workaround is to disable tooltips by going to *Edit > Preferences > Interface* and unchecking *'Show Tool Tips'*.
 
+### "Could not initialize Photoshop because of a program error" / "Something prevented the text engine from being initialized"
+- Install Microsoft fonts.
+- If you are on Arch, the easiest way is to install [ttf-ms-win10-auto](https://aur.archlinux.org/packages/ttf-ms-win10-auto) from the AUR.\
+  Otherwise, you can extract the fonts manually from a Windows ISO as explained [here](https://wiki.archlinux.org/title/Microsoft_fonts#Extracting_fonts_from_a_Windows_ISO), and place them in `~/.local/share/fonts/` (or `/usr/share/fonts/` for system-wide).
+
 
 
 ## TODO
