@@ -8,6 +8,7 @@
 export BASEDIR="$HOME/.local/share/photoshop-wine"
 export LAUNCHER="$HOME/.local/bin/photoshop"
 export DESKTOPFILE="$HOME/.local/share/applications/photoshop.desktop"
+export FONTSPATH="$HOME/.local/share/fonts/windows"
 export PSPATH="$BASEDIR/Photoshop"
 export RESOURCESPATH="$BASEDIR/temp"
 
@@ -54,21 +55,33 @@ case "$REPLY" in
     *) exit 0 ;;
 esac
 
-INFO "Checking dependencies... \n"
+INFO "Checking dependencies... "
 missingdep=0
 for dep in wine curl tar ; do
-    if ! command -v $dep >/dev/null 2>&1 ; then
-        missingdep=1
-        WARN "'$dep' not found"
-    else
-        CHCK "'$dep' found"
-    fi
-    sleep 0.1
+    [ ! command -v $dep >/dev/null 2>&1 ] && missingdep=1 && WARN "\n'$dep' not found" && sleep 0.1
 done; unset dep
 [ "$missingdep" -ne 0 ] && ERRO "Please install the required dependencies." || CHCK "Done"
 
+# Check for missing fonts
+dlfonts=0
+missingfont=0
+for font in tahoma arial courier comic georgia impact times trebuchet verdana webdings ; do
+    [ -z "$(fc-list | grep -i "$font")" ] && missingfont=1 && break
+done
+if [ "$missingfont" -ne 0 ]; then 
+    WARN "You are missing some required fonts for Photoshop." 
+    echo "They will be placed in '$FONTSPATH'."
+    echo "Download size is ~510MB, 180MB will be freed after extraction."
+    echo "(THIS STEP IS OPTIONAL)"
+    read -rp "Do you want to download them? [Y/n]" REPLY
+    case "$REPLY" in
+        n/N/no/NO) continue ;;
+        *) dlfonts=1; continue ;;
+    esac
+fi
+
 INFO "Creating directories... "
-for dir in $BASEDIR $WINEPREFIX $PSPATH $RESOURCESPATH ; do
+for dir in $BASEDIR $WINEPREFIX $PSPATH $RESOURCESPATH $FONTSPATH ; do
     mkdir -p "$dir"
 done; unset dir
 for dir in $LAUNCHER $DESKTOPFILE ; do
@@ -136,9 +149,19 @@ INFO "Downloading Photoshop... "
 [ -f "$RESOURCESPATH/cs6.tgz" ] || gddl "$RESOURCESPATH/cs6.tgz" "11XXyjIfLgHOxQBwqERdjHL4MzUmoxrAB"
 CHCK "Done"
 
-INFO "Extracting... "
+INFO "Extracting archive... "
 tar -xzf "$RESOURCESPATH/cs6.tgz" -C "$PSPATH"
 CHCK "Done"
+
+if [ "$dlfonts" -ne 0 ]; then
+    INFO "Downloading Microsoft fonts... "
+    [ -f "$RESOURCESPATH/msfonts.tgz" ] || gddl "$RESOURCESPATH/msfonts.tgz" "1ZHlqqFsK2DVbEyCxynLp1_LBCe7yQB8o"
+    CHCK "Done"
+
+    INFO "Extracting fonts... "
+    tar -xzf "$RESOURCESPATH/msfonts.tgz" -C "$FONTSPATH"
+    CHCK "Done"
+fi
 
 INFO "Creating licensing identifier file... "
 mkdir -p "$WINEPREFIX/dosdevices/c:/Program Files/Common Files/Adobe/PCF"
@@ -225,7 +248,7 @@ sed -i "s|/home/$USER|\$HOME|g" "$LAUNCHER"
 chmod +x "$LAUNCHER"
 CHCK "Done"
 
-INFO "Creating .desktop files... "
+INFO "Creating .desktop file... "
 cat << 'EOT' > "$DESKTOPFILE"
 [Desktop Entry]
 Type=Application
