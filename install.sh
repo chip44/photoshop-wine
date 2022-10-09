@@ -55,10 +55,10 @@ case "$REPLY" in
     *) exit 0 ;;
 esac
 
-INFO "Checking dependencies... "
+INFO "Checking dependencies... \n"
 missingdep=0
 for dep in wine curl tar ; do
-    [ ! command -v $dep >/dev/null 2>&1 ] && missingdep=1 && WARN "\n'$dep' not found" && sleep 0.1
+    [ -z "$(command -v $dep)" ] && missingdep=1 && WARN "'$dep' not found" && sleep 0.1
 done; unset dep
 [ "$missingdep" -ne 0 ] && ERRO "Please install the required dependencies." || CHCK "Done"
 
