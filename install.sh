@@ -81,9 +81,9 @@ if [ "$missingfont" -ne 0 ]; then
 fi
 
 INFO "Creating directories... "
-for dir in $BASEDIR $WINEPREFIX $PSPATH $RESOURCESPATH $FONTSPATH ; do
-    mkdir -p "$dir"
-done; unset dir
+mkdir -p "$BASEDIR" "$WINEPREFIX" "$PSPATH" "$RESOURCESPATH" "$FONTSPATH"
+
+# Create parent directories of files
 for dir in $LAUNCHER $DESKTOPFILE ; do
     mkdir -p "$(dirname "$dir")"
 done; unset dir
